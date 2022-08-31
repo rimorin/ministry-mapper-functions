@@ -3,8 +3,7 @@ import { database, initializeApp } from "firebase-admin";
 
 const productionAdmin = initializeApp(
   {
-    databaseURL:
-      "https://ministry-mapper-default-rtdb.asia-southeast1.firebasedatabase.app/",
+    databaseURL: process.env.PRODUCTION_RTDB,
   },
   "production"
 );
@@ -12,8 +11,7 @@ const production_rtdb = productionAdmin.database();
 
 const stagingAdmin = initializeApp(
   {
-    databaseURL:
-      "https://ministry-mapper-staging.asia-southeast1.firebasedatabase.app/",
+    databaseURL: process.env.STAGING_RTDB,
   },
   "staging"
 );
