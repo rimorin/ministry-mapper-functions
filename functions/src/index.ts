@@ -1,8 +1,9 @@
 import { pubsub } from "firebase-functions";
-import { initializeApp } from "firebase-admin/app";
-import { getDatabase, Database } from "firebase-admin/database";
+import { App, initializeApp, deleteApp } from "firebase-admin/app";
+import { getDatabase } from "firebase-admin/database";
 
-const cleanUpLinks = (database: Database, time: number) => {
+const cleanUpLinks = (app: App, time: number) => {
+  const database = getDatabase(app);
   const dbname = database.app.name;
   console.info(`Running ${dbname} link cleanup job.`);
   database
@@ -11,9 +12,15 @@ const cleanUpLinks = (database: Database, time: number) => {
     .then((snapshot) => {
       snapshot.forEach((idSnapshot) => {
         const id = idSnapshot.key;
-        const timestamp = idSnapshot.val();
+        const link = idSnapshot.val();
+        let timestamp = link;
+        let postalcode = "unknown";
+        if (typeof link === "object") {
+          timestamp = link.tokenEndtime;
+          postalcode = link.postalCode;
+        }
         console.info(
-          `Checking ${dbname} link id: ${id}, timestamp: ${timestamp}`
+          `Checking ${dbname} link id: ${id}, postalcode: ${postalcode}, timestamp: ${timestamp}`
         );
         if (time > timestamp) {
           database
@@ -35,6 +42,7 @@ const cleanUpLinks = (database: Database, time: number) => {
     })
     .finally(() => {
       console.info(`Completed ${dbname} link cleanup job.`);
+      deleteApp(app);
     });
 };
 
@@ -43,35 +51,29 @@ export const cleanLinksEveryday = pubsub
   .onRun((_) => {
     const currentTimestamp = new Date().getTime();
     cleanUpLinks(
-      getDatabase(
-        initializeApp(
-          {
-            databaseURL: process.env.PRODUCTION_RTDB,
-          },
-          "production"
-        )
+      initializeApp(
+        {
+          databaseURL: process.env.PRODUCTION_RTDB,
+        },
+        "production"
       ),
       currentTimestamp
     );
     cleanUpLinks(
-      getDatabase(
-        initializeApp(
-          {
-            databaseURL: process.env.STAGING_RTDB,
-          },
-          "staging"
-        )
+      initializeApp(
+        {
+          databaseURL: process.env.STAGING_RTDB,
+        },
+        "staging"
       ),
       currentTimestamp
     );
     cleanUpLinks(
-      getDatabase(
-        initializeApp(
-          {
-            databaseURL: process.env.LOCAL_RTDB,
-          },
-          "local"
-        )
+      initializeApp(
+        {
+          databaseURL: process.env.LOCAL_RTDB,
+        },
+        "local"
       ),
       currentTimestamp
     );
