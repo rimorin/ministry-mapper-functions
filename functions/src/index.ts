@@ -50,32 +50,38 @@ export const cleanLinksEveryday = pubsub
   .schedule("every 5 minutes")
   .onRun((_) => {
     const currentTimestamp = new Date().getTime();
-    cleanUpLinks(
-      initializeApp(
-        {
-          databaseURL: process.env.PRODUCTION_RTDB,
-        },
-        "production"
-      ),
-      currentTimestamp
-    );
-    cleanUpLinks(
-      initializeApp(
-        {
-          databaseURL: process.env.STAGING_RTDB,
-        },
-        "staging"
-      ),
-      currentTimestamp
-    );
-    cleanUpLinks(
-      initializeApp(
-        {
-          databaseURL: process.env.LOCAL_RTDB,
-        },
-        "local"
-      ),
-      currentTimestamp
-    );
+    const prodDatabaseURL = process.env.PRODUCTION_RTDB;
+    if (prodDatabaseURL)
+      cleanUpLinks(
+        initializeApp(
+          {
+            databaseURL: prodDatabaseURL,
+          },
+          "production"
+        ),
+        currentTimestamp
+      );
+    const stagingDatabaseURL = process.env.STAGING_RTDB;
+    if (stagingDatabaseURL)
+      cleanUpLinks(
+        initializeApp(
+          {
+            databaseURL: stagingDatabaseURL,
+          },
+          "staging"
+        ),
+        currentTimestamp
+      );
+    const localDatabaseURL = process.env.LOCAL_RTDB;
+    if (localDatabaseURL)
+      cleanUpLinks(
+        initializeApp(
+          {
+            databaseURL: localDatabaseURL,
+          },
+          "local"
+        ),
+        currentTimestamp
+      );
     return null;
   });

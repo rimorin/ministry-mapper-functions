@@ -16,5 +16,6 @@
 3. `firebase login` to connect firebase account
 4. `firebase init functions` to setup firebase functions environment
 5. go to functions folder
-6. `npm install` to install libraries
-7. `npm run deploy` to deploy function
+6. Setup dotenv file with PRODUCTION_RTDB, STAGING_RTDB or LOCAL_RTDB
+7. `npm install` to install libraries
+8. `npm run deploy` to deploy function
