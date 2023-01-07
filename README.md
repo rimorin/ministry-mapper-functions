@@ -2,4 +2,9 @@
 
 ## List of Crons
 
-- cleanUpLinks
+- cleanLinksEveryday
+
+## Environment Settings
+
+- Node 16
+- Firebase tools 11.20.0

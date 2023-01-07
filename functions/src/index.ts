@@ -1,23 +1,8 @@
 import { pubsub } from "firebase-functions";
-import { database, initializeApp } from "firebase-admin";
+import { initializeApp } from "firebase-admin/app";
+import { getDatabase, Database } from "firebase-admin/database";
 
-const productionAdmin = initializeApp(
-  {
-    databaseURL: process.env.PRODUCTION_RTDB,
-  },
-  "production"
-);
-const production_rtdb = productionAdmin.database();
-
-const stagingAdmin = initializeApp(
-  {
-    databaseURL: process.env.STAGING_RTDB,
-  },
-  "staging"
-);
-const staging_rtdb = stagingAdmin.database();
-
-const cleanUpLinks = (database: database.Database, time: number) => {
+const cleanUpLinks = (database: Database, time: number) => {
   const dbname = database.app.name;
   console.info(`Running ${dbname} link cleanup job.`);
   database
@@ -57,7 +42,38 @@ export const cleanLinksEveryday = pubsub
   .schedule("every 5 minutes")
   .onRun((_) => {
     const currentTimestamp = new Date().getTime();
-    cleanUpLinks(staging_rtdb, currentTimestamp);
-    cleanUpLinks(production_rtdb, currentTimestamp);
+    cleanUpLinks(
+      getDatabase(
+        initializeApp(
+          {
+            databaseURL: process.env.PRODUCTION_RTDB,
+          },
+          "production"
+        )
+      ),
+      currentTimestamp
+    );
+    cleanUpLinks(
+      getDatabase(
+        initializeApp(
+          {
+            databaseURL: process.env.STAGING_RTDB,
+          },
+          "staging"
+        )
+      ),
+      currentTimestamp
+    );
+    cleanUpLinks(
+      getDatabase(
+        initializeApp(
+          {
+            databaseURL: process.env.LOCAL_RTDB,
+          },
+          "local"
+        )
+      ),
+      currentTimestamp
+    );
     return null;
   });
