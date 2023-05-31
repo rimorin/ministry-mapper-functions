@@ -1,8 +1,14 @@
-# Cronjobs for Ministry Mapper
+# Cloud Functions for Ministry Mapper
 
 ## List of Crons
 
 - cleanLinksEveryday
+
+## List of Functions
+
+- getCongregationUsers
+- getUserByEmail
+- updateUserAccess
 
 ## Environment Settings
 

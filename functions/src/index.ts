@@ -1,6 +1,10 @@
-import { pubsub } from "firebase-functions";
+import { pubsub, region } from "firebase-functions";
 import { App, initializeApp, deleteApp } from "firebase-admin/app";
 import { getDatabase } from "firebase-admin/database";
+import { UserRecord, getAuth } from "firebase-admin/auth";
+import { FB_DEFAULT_CLOUD_REGION, ROLE_REMOVE_ACCESS } from "./constant";
+
+const sgRegion = region(process.env.LOCAL_RTDB || FB_DEFAULT_CLOUD_REGION);
 
 const cleanUpLinks = (app: App, time: number) => {
   const database = getDatabase(app);
@@ -46,8 +50,79 @@ const cleanUpLinks = (app: App, time: number) => {
     });
 };
 
+export const getCongregationUsers = sgRegion.https.onCall(
+  async (data, context) => {
+    let congregationUsers: any = {};
+    const congregation = data.congregation;
+    if (!congregation) return;
+
+    const app = initializeApp();
+    try {
+      const auth = getAuth(app);
+      const userResults = await auth.listUsers();
+      for (let index = 0; index < userResults.users.length; index++) {
+        const user = userResults.users[index];
+        if (!user.email) continue;
+        const claims = user.customClaims;
+        if (!claims) continue;
+        if (!claims[congregation]) continue;
+        congregationUsers[user.uid] = {
+          name: user.displayName,
+          email: user.email,
+          verified: user.emailVerified,
+          role: Number(claims[congregation]),
+        };
+      }
+    } finally {
+      deleteApp(app);
+    }
+    return congregationUsers;
+  }
+);
+
+export const getUserByEmail = sgRegion.https.onCall(async (data, context) => {
+  let user: UserRecord;
+  const email = data.email;
+  if (!email) return;
+
+  const app = initializeApp();
+  try {
+    const auth = getAuth(app);
+    user = await auth.getUserByEmail(email);
+  } finally {
+    deleteApp(app);
+  }
+  return user;
+});
+
+export const updateUserAccess = sgRegion.https.onCall(async (data, context) => {
+  const userId = data.uid;
+  const congregation = data.congregation;
+  const role = data.role;
+  if (!congregation || !userId || !role) return;
+
+  const app = initializeApp();
+  try {
+    const auth = getAuth(app);
+    const user = await auth.getUser(userId);
+    if (!user) return;
+    const currentClaims = user.customClaims || {};
+    const roleValue = Number(role);
+    switch (roleValue) {
+      case ROLE_REMOVE_ACCESS:
+        delete currentClaims[congregation];
+        break;
+      default:
+        currentClaims[congregation] = roleValue;
+    }
+    await auth.setCustomUserClaims(userId, currentClaims);
+  } finally {
+    deleteApp(app);
+  }
+});
+
 export const cleanLinksEveryday = pubsub
-  .schedule("every 5 minutes")
+  .schedule("every 10 minutes")
   .onRun((_) => {
     const currentTimestamp = new Date().getTime();
     const prodDatabaseURL = process.env.PRODUCTION_RTDB;
