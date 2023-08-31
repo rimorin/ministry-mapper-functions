@@ -271,20 +271,21 @@ const processNotifications = async (app: App) => {
     for (const index in notification_list) {
       const notification = notification_list[index];
       const notificationType = notification.type as number;
-      const congregation = notification.congregation;
-      const postalCode = notification.postalCode;
-      const fromUser = notification.fromUser;
+      const congregation = notification.congregation as string;
+      const postalCode = notification.postalCode as string;
+      const fromUser = notification.fromUser as string;
       if (!notificationType || !congregation || !postalCode) continue;
 
       const addressData = (await database.ref(postalCode).once("value")).val();
-      const message =
+      const message = (
         notificationType === NOTFICATION_TYPE.FEEDBACK
           ? addressData.feedback
-          : addressData.instructions;
+          : addressData.instructions
+      ) as string;
 
-      if (!message || message.length === 0) {
+      if (!message) {
         await database
-          .ref(`notifications/${postalCode}-${notificationType}`)
+          .ref(`notifications/${postalCode}-${notificationType}/`)
           .remove();
         continue;
       }
