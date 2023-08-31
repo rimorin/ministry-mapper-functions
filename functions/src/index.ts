@@ -74,7 +74,6 @@ const getTerritory = async (
   if (!territories.exists()) return;
 
   const territory_list = territories.val();
-  console.log(`territory_list: ${JSON.stringify(territory_list)}`);
 
   let territoryCode = null;
 
@@ -88,7 +87,6 @@ const getTerritory = async (
       }
     }
   }
-  console.log(`territoryCode: ${territoryCode}`);
 
   return territoryCode;
 };
@@ -222,7 +220,7 @@ export const cleanLinksEveryday = pubsub
   });
 
 export const triggerNotifications = pubsub
-  .schedule("every 5 minutes")
+  .schedule("every 10 minutes")
   .onRun((_) => {
     const prodDatabaseURL = process.env.PRODUCTION_RTDB;
     if (prodDatabaseURL)
@@ -275,6 +273,7 @@ const processNotifications = async (app: App) => {
       const notificationType = notification.type as number;
       const congregation = notification.congregation;
       const postalCode = notification.postalCode;
+      const fromUser = notification.fromUser;
       if (!notificationType || !congregation || !postalCode) continue;
 
       const addressData = (await database.ref(postalCode).once("value")).val();
@@ -319,6 +318,7 @@ const processNotifications = async (app: App) => {
               address: addressName,
               territory: territory,
               message: message,
+              fromUser: fromUser,
             },
           };
         }
@@ -345,7 +345,7 @@ const processNotifications = async (app: App) => {
           .ref(`notifications/${postalCode}-${notificationType}/`)
           .remove();
       } catch (error) {
-        console.error(`Error sending email. Reason: ${error}`);
+        console.error(`Error sending email. Reason: ${JSON.stringify(error)}`);
       }
     }
   } finally {
