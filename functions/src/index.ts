@@ -112,7 +112,7 @@ const getCongUsers = async (
         name: user.displayName,
         email: user.email,
         verified: user.emailVerified,
-        role: role,
+        role: userRole,
       };
     }
   } catch (error) {
