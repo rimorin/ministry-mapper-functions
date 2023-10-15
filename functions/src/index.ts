@@ -20,30 +20,30 @@ const cleanUpLinks = (app: App, time: number) => {
     .ref("links")
     .once("value")
     .then((snapshot) => {
-      snapshot.forEach((idSnapshot) => {
-        const id = idSnapshot.key;
-        const link = idSnapshot.val();
-        let timestamp = link;
-        let postalcode = "unknown";
-        if (typeof link === "object") {
-          timestamp = link.tokenEndtime;
-          postalcode = link.postalCode;
-        }
-        console.info(
-          `Checking ${dbname} link id: ${id}, postalcode: ${postalcode}, timestamp: ${timestamp}`
-        );
-        if (time > timestamp) {
-          database
-            .ref(`links/${id}/`)
-            .remove()
-            .then(() => {
-              console.info(`Removed expired ${dbname} link id : ${id}`);
-            })
-            .catch((reason) => {
-              console.error(
-                `Error when removing ${dbname} link id : ${id}. Reason: ${reason}`
-              );
-            });
+      snapshot.forEach((linkSnapshot) => {
+        const congregation = linkSnapshot.key;
+        const congregationLinkSnapshot = linkSnapshot.val();
+        for (const id in congregationLinkSnapshot) {
+          const link = congregationLinkSnapshot[id];
+          const timestamp = link.tokenEndtime;
+          const postalcode = link.postalCode;
+
+          console.info(
+            `Checking ${dbname} link id: ${congregation}, postalcode: ${postalcode}, timestamp: ${timestamp}`
+          );
+          if (time > timestamp) {
+            database
+              .ref(`links/${congregation}/${id}`)
+              .remove()
+              .then(() => {
+                console.info(`Removed expired ${dbname} link id : ${id}`);
+              })
+              .catch((reason) => {
+                console.error(
+                  `Error when removing ${dbname} link id : ${id}. Reason: ${reason}`
+                );
+              });
+          }
         }
       });
     })
