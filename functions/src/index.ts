@@ -276,7 +276,11 @@ const processNotifications = async (app: App) => {
       const fromUser = notification.fromUser as string;
       if (!notificationType || !congregation || !postalCode) continue;
 
-      const addressData = (await database.ref(postalCode).once("value")).val();
+      const addressData = (
+        await database
+          .ref(`addresses/${congregation}/${postalCode}`)
+          .once("value")
+      ).val();
       const message = (
         notificationType === NOTFICATION_TYPE.FEEDBACK
           ? addressData.feedback
@@ -285,7 +289,9 @@ const processNotifications = async (app: App) => {
 
       if (!message) {
         await database
-          .ref(`notifications/${postalCode}-${notificationType}/`)
+          .ref(
+            `notifications/${congregation}-${postalCode}-${notificationType}`
+          )
           .remove();
         continue;
       }
@@ -343,7 +349,9 @@ const processNotifications = async (app: App) => {
       try {
         await mailersend.email.send(emailParams);
         await database
-          .ref(`notifications/${postalCode}-${notificationType}/`)
+          .ref(
+            `notifications/${congregation}-${postalCode}-${notificationType}`
+          )
           .remove();
       } catch (error) {
         console.error(`Error sending email. Reason: ${JSON.stringify(error)}`);
