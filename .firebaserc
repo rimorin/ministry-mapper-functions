@@ -1,5 +1,12 @@
 {
   "projects": {
-    "default": "my-ministry-5e36b"
-  }
+    "default": "ministry-mapper"
+  },
+  "targets": {},
+  "etags": {
+    "ministry-mapper": {
+      "extensionInstances": {}
+    }
+  },
+  "dataconnectEmulatorConfig": {}
 }

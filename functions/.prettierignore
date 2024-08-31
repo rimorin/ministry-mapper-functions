@@ -1,0 +1,12 @@
+# Ignore compiled JavaScript files
+lib/
+
+# Ignore Node.js dependency directory
+node_modules/
+
+# Ignore build directory
+build/
+
+# Ignore npm package files
+package-lock.json
+package.json
