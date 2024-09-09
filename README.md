@@ -6,15 +6,41 @@
 - processNotifications
 - processTerritoryAggregates
 
+### What are Crons?
+
+Crons are scheduled tasks that run at specified intervals. They are typically used for repetitive tasks such as cleaning up data, sending notifications, or processing aggregates. These tasks are automated and run in the background without user intervention.
+
+**Underlying Technology**:
+
+- **Firebase Cloud Functions**: Uses Firebase's `pubsub.schedule` to define and deploy cron jobs.
+- **Google Cloud Scheduler**: Can also be used to trigger HTTP endpoints at scheduled times.
+
 ## List of Event Functions
 
 - processAddressAggregates
+
+### What are Event Functions?
+
+Event functions are triggered by specific events in your system, such as changes to the database or user actions. These functions respond to events and perform actions based on the event data.
+
+**Underlying Technology**:
+
+- **Google Pub/Sub**: Uses Google Cloud Pub/Sub to publish and subscribe to messages, allowing functions to be triggered by specific events.
 
 ## List of Callable Functions
 
 - getCongregationUsers
 - getUserByEmail
 - updateUserAccess
+
+### What are Callable Functions?
+
+Callable functions are functions that can be called directly by clients, such as web or mobile applications. These functions are typically used to perform operations that require server-side logic, such as fetching user data or updating user access permissions. Callable functions provide a secure way to execute server-side code from the client.
+
+**Underlying Technology**:
+
+- **Firebase Cloud Functions**: Uses `functions.https.onCall` to define functions that can be called directly from the client using Firebase SDK.
+- **Google Cloud Functions**: Can also be used to create HTTP endpoints that clients can call.
 
 ## Getting Started
 
@@ -57,4 +83,3 @@ To deploy to the local environment:
 ```sh
 ./deploy.sh local
 ```
-

@@ -70,7 +70,7 @@ export async function processAddressData(
     congregationOptions,
     congregationDetails
   );
-
+  await congregationDetails.ref.update({ updatedDate: Date.now() });
   await updateDatabaseWithAggregates(addressRef, aggregates);
   info(
     `Updated aggregates for ${congregation} - ${addressRef.key} - ${addressDetails.name}`

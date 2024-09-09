@@ -16,6 +16,7 @@
   },
   "main": "lib/index.js",
   "dependencies": {
+    "cron-parser": "^4.9.0",
     "firebase-admin": "^12.3.1",
     "firebase-functions": "^5.1.0",
     "mailersend": "^2.2.0"

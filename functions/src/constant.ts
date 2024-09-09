@@ -15,9 +15,14 @@ const NOTFICATION_TYPE = {
 const ACCESS_KEY = 'congregations';
 
 const TERRITORY_AGGREGATES_SETTINGS = {
-  schedule: 'every 5 minutes',
+  // Every every hour from 1am to 1pm UTC (9am to 9pm SGT)
+  schedule: '0 1-13 * * *',
   memory: '512MiB',
+  timeoutSeconds: 600,
 } as ScheduleOptions;
+
+// Tolerance for cron job to run
+const TERRITORY_CRON_TOLERANCE_SECONDS = 10;
 
 export {
   USER_ROLES,
@@ -26,4 +31,5 @@ export {
   NOTFICATION_TYPE,
   ACCESS_KEY,
   TERRITORY_AGGREGATES_SETTINGS,
+  TERRITORY_CRON_TOLERANCE_SECONDS,
 };
